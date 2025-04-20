@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking Calendar</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #121212; /* Dark background */
+            color: #f0f0f0; /* Light text for dark background */
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: #1e1e1e; /* Dark container background */
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+        }
+        .logo-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .logo {
+            max-width: 200px;
+            max-height: 80px;
+        }
+        h1 {
+            color: #4CAF50; /* Green title */
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .calendar-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .month-selector {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .month-selector button {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .month-selector button:hover {
+            background-color: #45a049;
+        }
+        .month-selector h2 {
+            margin: 0;
+            color: #e0e0e0;
+        }
+        .calendar {
+            width: 100%;
+        }
+        .weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            background-color: #2a2a2a; /* Dark weekday background */
+            padding: 10px 0;
+            font-weight: bold;
+            text-align: center;
+        }
+        .days {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+            padding: 5px;
+        }
+        .day {
+            min-height: 100px;
+            border: 1px solid #333;
+            padding: 10px;
+            position: relative;
+            color: #e0e0e0;
+        }
+        .day-number {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background-color: #333;
+            width: 25px;
+            height: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+        .day.empty {
+            background-color: #2a2a2a;
+            border: 1px solid #333;
+        }
+        .day.available {
+            background-color: rgba(76, 175, 80, 0.2); /* Green with transparency */
+            cursor: pointer;
+            border: 1px solid #4CAF50;
+        }
+        .day.selected {
+            background-color: rgba(76, 175, 80, 0.4); /* Brighter green */
+            border: 2px solid #4CAF50;
+        }
+        .day.unavailable {
+            background-color: rgba(244, 67, 54, 0.2); /* Red with transparency */
+            cursor: not-allowed;
+            border: 1px solid #F44336;
+        }
+        .day.booked {
+            background-color: rgba(255, 152, 0, 0.2); /* Orange with transparency */
+            border: 1px solid #FF9800;
+        }
+        .selections {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #2a2a2a; /* Dark section background */
+            border-radius: 8px;
+        }
+        .selected-dates {
+            margin-bottom: 20px;
+        }
+        .selected-dates h3 {
+            margin-top: 0;
+            color: #4CAF50;
+        }
+        .selected-dates ul {
+            padding-left: 20px;
+        }
+        form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        form label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #e0e0e0;
+        }
+        form input, form textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #444;
+            border-radius: 4px;
+            box-sizing: border-box;
+            background-color: #333;
+            color: #e0e0e0;
+        }
+        form input:focus, form textarea:focus {
+            border-color: #4CAF50;
+            outline: none;
+        }
+        form .full-width {
+            grid-column: span 2;
+        }
+        button.submit {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        button.submit:hover {
+            background-color: #45a049;
+        }
+        .legend {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: #e0e0e0;
+        }
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border: 1px solid #444;
+        }
+        .legend-color.available {
+            background-color: rgba(76, 175, 80, 0.2);
+            border: 1px solid #4CAF50;
+        }
+        .legend-color.unavailable {
+            background-color: rgba(244, 67, 54, 0.2);
+            border: 1px solid #F44336;
+        }
+        .legend-color.selected {
+            background-color: rgba(76, 175, 80, 0.4);
+            border: 2px solid #4CAF50;
+        }
+        .legend-color.booked {
+            background-color: rgba(255, 152, 0, 0.2);
+            border: 1px solid #FF9800;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo-container">
+            <!-- Replace the src with your actual logo URL -->
+            <img src="/api/placeholder/200/80" alt="Company Logo" class="logo">
+        </div>
+        
+        <h1>Booking Calendar</h1>
+        
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color available"></div>
+                <span>Available</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color unavailable"></div>
+                <span>Unavailable</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color selected"></div>
+                <span>Selected</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color booked"></div>
+                <span>Booked</span>
+            </div>
+        </div>
+        
+        <div class="calendar-container">
+            <div class="month-selector">
+                <button id="prev-month">&lt; Previous Month</button>
+                <h2 id="current-month">April 2025</h2>
+                <button id="next-month">Next Month &gt;</button>
+            </div>
+            
+            <div class="calendar">
+                <div class="weekdays">
+                    <div>Mon</div>
+                    <div>Tue</div>
+                    <div>Wed</div>
+                    <div>Thu</div>
+                    <div>Fri</div>
+                    <div>Sat</div>
+                    <div>Sun</div>
+                </div>
+                <div class="days" id="calendar-days">
+                    <!-- Calendar days will be filled with JavaScript -->
+                </div>
+            </div>
+        </div>
+        
+        <div class="selections">
+            <div class="selected-dates">
+                <h3>Selected Available Dates</h3>
+                <p>Please select any days you are available.</p>
+                <ul id="selected-dates-list">
+                    <!-- Selected dates will be listed here -->
+                </ul>
+            </div>
+            
+            <form id="booking-form">
+                <div>
+                    <label for="name">Full Name</label>
+                    <input type="text" id="name" name="name" required>
+                </div>
+                <div>
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                <div class="full-width">
+                    <label for="phone">Phone</label>
+                    <input type="tel" id="phone" name="phone" required>
+                </div>
+                <div class="full-width">
+                    <label for="notes">Special Notes (Optional)</label>
+                    <textarea id="notes" name="notes" rows="3"></textarea>
+                </div>
+                <div class="full-width">
+                    <button type="submit" class="submit">Submit Available Dates</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        // Calendar creation and date selection logic
+        let today = new Date();
+        let currentMonth = today.getMonth();
+        let currentYear = today.getFullYear();
+        let selectedDates = [];
+        
+        // Function to build the calendar
+        function buildCalendar(month, year) {
+            const calendarDays = document.getElementById('calendar-days');
+            calendarDays.innerHTML = '';
+            
+            document.getElementById('current-month').textContent = new Date(year, month, 1).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+            
+            // Determine the first day of the month
+            const firstDay = new Date(year, month, 1);
+            // Adjust for Monday-based calendar (0: Sunday, 1: Monday, ...)
+            let startingDay = firstDay.getDay() || 7; // Convert Sunday (0) to 7
+            startingDay = startingDay - 1; // Subtract 1 to make Monday the first day
+            
+            // Determine the last day of the month
+            const lastDay = new Date(year, month + 1, 0);
+            const totalDays = lastDay.getDate();
+            
+            // Add empty days (start of month)
+            for (let i = 0; i < startingDay; i++) {
+                const emptyDay = document.createElement('div');
+                emptyDay.className = 'day empty';
+                calendarDays.appendChild(emptyDay);
+            }
+            
+            // Add the days of the month
+            for (let day = 1; day <= totalDays; day++) {
+                const dayElement = document.createElement('div');
+                dayElement.className = 'day';
+                
+                // Show day number
+                const dayNumber = document.createElement('div');
+                dayNumber.className = 'day-number';
+                dayNumber.textContent = day;
+                dayElement.appendChild(dayNumber);
+                
+                // Create the date for this day
+                const date = new Date(year, month, day);
+                const dateString = formatDate(date);
+                dayElement.setAttribute('data-date', dateString);
+                
+                // Determine day status (demo with some random logic)
+                const dayOfWeek = date.getDay();
+                
+                // Mark some days as unavailable, booked, or available for demo purposes
+                // In a real application, this data would come from a database
+                if (dayOfWeek === 0 || dayOfWeek === 6) { // Saturday and Sunday
+                    dayElement.classList.add('unavailable');
+                } else if (day % 10 === 0 || day % 10 === 5) { // Mark some days as booked
+                    dayElement.classList.add('booked');
+                } else {
+                    dayElement.classList.add('available');
+                    
+                    // Add click functionality to available days
+                    dayElement.addEventListener('click', function() {
+                        selectDate(this);
+                    });
+                }
+                
+                calendarDays.appendChild(dayElement);
+            }
+        }
+        
+        // Function to select a date
+        function selectDate(dayElement) {
+            const date = dayElement.getAttribute('data-date');
+            
+            // If this date is already selected, remove it
+            const index = selectedDates.indexOf(date);
+            if (index > -1) {
+                selectedDates.splice(index, 1);
+                dayElement.classList.remove('selected');
+            } else {
+                // Add the date (no consecutive requirement)
+                selectedDates.push(date);
+                dayElement.classList.add('selected');
+            }
+            
+            // Sort the dates
+            selectedDates.sort();
+            
+            // Update the list of selected dates
+            updateSelectedDatesList();
+        }
+        
+        // Function to update the list of selected dates
+        function updateSelectedDatesList() {
+            const selectedDatesList = document.getElementById('selected-dates-list');
+            selectedDatesList.innerHTML = '';
+            
+            if (selectedDates.length === 0) {
+                const listItem = document.createElement('li');
+                listItem.textContent = 'No dates selected yet.';
+                selectedDatesList.appendChild(listItem);
+            } else {
+                selectedDates.forEach(date => {
+                    const listItem = document.createElement('li');
+                    listItem.textContent = formatDateForDisplay(date);
+                    selectedDatesList.appendChild(listItem);
+                });
+            }
+        }
+        
+        // Helper function for date formatting (YYYY-MM-DD)
+        function formatDate(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+        
+        // Format date for display (Day, Month Day, Year)
+        function formatDateForDisplay(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        }
+        
+        // Add functionality to previous and next month buttons
+        document.getElementById('prev-month').addEventListener('click', function() {
+            currentMonth--;
+            if (currentMonth < 0) {
+                currentMonth = 11;
+                currentYear--;
+            }
+            buildCalendar(currentMonth, currentYear);
+        });
+        
+        document.getElementById('next-month').addEventListener('click', function() {
+            currentMonth++;
+            if (currentMonth > 11) {
+                currentMonth = 0;
+                currentYear++;
+            }
+            buildCalendar(currentMonth, currentYear);
+        });
+        
+        // Form submission functionality
+        document.getElementById('booking-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            if (selectedDates.length === 0) {
+                alert('Please select at least one available date!');
+                return;
+            }
+            
+            // Get form data
+            const formData = new FormData(this);
+            const bookingData = {
+                name: formData.get('name'),
+                email: formData.get('email'),
+                phone: formData.get('phone'),
+                notes: formData.get('notes'),
+                dates: selectedDates
+            };
+            
+            // In a real application, you would send this data to your server
+            console.log('Availability data:', bookingData);
+            
+            // Show success message for demo
+            alert('Your availability has been submitted. We will contact you shortly.');
+            
+            // Reset the form
+            this.reset();
+            selectedDates = [];
+            updateSelectedDatesList();
+            buildCalendar(currentMonth, currentYear);
+        });
+        
+        // Build the calendar when the page loads
+        buildCalendar(currentMonth, currentYear);
+        updateSelectedDatesList();
+    </script>
+</body>
+</html>
