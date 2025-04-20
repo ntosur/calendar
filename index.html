@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Booking Calendar</title>
+    <title>Bienal - Availability Calendar</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -26,7 +26,7 @@
         }
         .logo {
             max-width: 200px;
-            max-height: 80px;
+            height: auto;
         }
         h1 {
             color: #4CAF50; /* Green title */
@@ -77,9 +77,9 @@
             padding: 5px;
         }
         .day {
-            min-height: 100px;
+            min-height: 70px; /* Reduced from 100px */
             border: 1px solid #333;
-            padding: 10px;
+            padding: 5px; /* Reduced from 10px */
             position: relative;
             color: #e0e0e0;
         }
@@ -105,26 +105,19 @@
             border: 1px solid #4CAF50;
         }
         .day.selected {
-            background-color: rgba(76, 175, 80, 0.4); /* Brighter green */
-            border: 2px solid #4CAF50;
+            background-color: rgba(255, 152, 0, 0.3); /* Orange with transparency */
+            border: 2px solid #FF9800;
         }
         .day.unavailable {
             background-color: rgba(244, 67, 54, 0.2); /* Red with transparency */
             cursor: not-allowed;
             border: 1px solid #F44336;
         }
-        .day.booked {
-            background-color: rgba(255, 152, 0, 0.2); /* Orange with transparency */
-            border: 1px solid #FF9800;
-        }
-        .selections {
-            margin-top: 30px;
-            padding: 20px;
-            background-color: #2a2a2a; /* Dark section background */
-            border-radius: 8px;
-        }
         .selected-dates {
             margin-bottom: 20px;
+            padding: 15px;
+            background-color: #2a2a2a;
+            border-radius: 8px;
         }
         .selected-dates h3 {
             margin-top: 0;
@@ -132,6 +125,12 @@
         }
         .selected-dates ul {
             padding-left: 20px;
+        }
+        .selections {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #2a2a2a; /* Dark section background */
+            border-radius: 8px;
         }
         form {
             display: grid;
@@ -173,67 +172,23 @@
         button.submit:hover {
             background-color: #45a049;
         }
-        .legend {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 20px;
-            justify-content: center;
-        }
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            color: #e0e0e0;
-        }
-        .legend-color {
-            width: 20px;
-            height: 20px;
-            border: 1px solid #444;
-        }
-        .legend-color.available {
-            background-color: rgba(76, 175, 80, 0.2);
-            border: 1px solid #4CAF50;
-        }
-        .legend-color.unavailable {
-            background-color: rgba(244, 67, 54, 0.2);
-            border: 1px solid #F44336;
-        }
-        .legend-color.selected {
-            background-color: rgba(76, 175, 80, 0.4);
-            border: 2px solid #4CAF50;
-        }
-        .legend-color.booked {
-            background-color: rgba(255, 152, 0, 0.2);
-            border: 1px solid #FF9800;
-        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="logo-container">
-            <!-- Replace the src with your actual logo URL -->
-            <img src="/api/placeholder/200/80" alt="Company Logo" class="logo">
+            <!-- Bienal logo -->
+            <img src="https://bienal.com/wp-content/uploads/2020/07/Bienal-Logo.png.webp" alt="Bienal Logo" class="logo">
         </div>
         
-        <h1>Booking Calendar</h1>
+        <h1>Availability Calendar</h1>
         
-        <div class="legend">
-            <div class="legend-item">
-                <div class="legend-color available"></div>
-                <span>Available</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color unavailable"></div>
-                <span>Unavailable</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color selected"></div>
-                <span>Selected</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color booked"></div>
-                <span>Booked</span>
-            </div>
+        <div class="selected-dates">
+            <h3>Selected Available Dates</h3>
+            <p>Please select any days you are available.</p>
+            <ul id="selected-dates-list">
+                <!-- Selected dates will be listed here -->
+            </ul>
         </div>
         
         <div class="calendar-container">
@@ -260,14 +215,6 @@
         </div>
         
         <div class="selections">
-            <div class="selected-dates">
-                <h3>Selected Available Dates</h3>
-                <p>Please select any days you are available.</p>
-                <ul id="selected-dates-list">
-                    <!-- Selected dates will be listed here -->
-                </ul>
-            </div>
-            
             <form id="booking-form">
                 <div>
                     <label for="name">Full Name</label>
@@ -339,15 +286,12 @@
                 const dateString = formatDate(date);
                 dayElement.setAttribute('data-date', dateString);
                 
-                // Determine day status (demo with some random logic)
+                // Determine day status
                 const dayOfWeek = date.getDay();
                 
-                // Mark some days as unavailable, booked, or available for demo purposes
-                // In a real application, this data would come from a database
-                if (dayOfWeek === 0 || dayOfWeek === 6) { // Saturday and Sunday
+                // Mark only Sundays as unavailable
+                if (dayOfWeek === 0) { // Sunday only
                     dayElement.classList.add('unavailable');
-                } else if (day % 10 === 0 || day % 10 === 5) { // Mark some days as booked
-                    dayElement.classList.add('booked');
                 } else {
                     dayElement.classList.add('available');
                     
